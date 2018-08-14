@@ -1,0 +1,104 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8" />
+	<link href="FChart.css" rel="stylesheet" />
+	<style>
+		.container {
+			display: table;
+			width: 100%;
+			table-layout: fixed;
+		}
+
+		.chart, .funds {
+			display: table-cell;
+			vertical-align: top;
+		}
+
+		.chart {
+			width: 1200px;
+			height: 600px;
+		}
+
+		.funds span {
+			cursor: pointer;
+			width: 49%;
+			display: inline-block;
+		}
+
+		.active {
+			color: #fff;
+			background-color: #3398DB;
+		}
+	</style>
+</head>
+<body>
+	<!--<script src="lib/d3.min.js"></script>-->
+	<div>
+		<button id="showWorth">资产净值(包含货基产品)</button>
+		<button id="showWorthRid">资产净值(剔除货基产品)</button>
+
+		<button id="showCoNumber">基金公司家数</button>
+	</div>
+	<div class="container">
+		<div class="chart" id="chart"></div>
+		<div class="funds" id="funds"></div>
+	</div>
+
+	<script src="../data.js"></script>
+	<script src="lib/echarts.common.min.js"></script>
+	<script src="FChart.js"></script>
+
+	<script>
+		//演示
+
+		var allName = window.__data__.allName,
+			allItem = window.__data__.fundItems,
+			$span = document.createElement("span"),
+			$frag = document.createDocumentFragment(),
+			$fundLists = document.getElementById('funds');
+
+		Object.keys(allItem).forEach(function (id) {
+			var curData = allItem[id],
+				cloneSpan = $span.cloneNode(false);
+			cloneSpan.dataset.id = curData.id;
+			cloneSpan.innerHTML = curData.fundName;
+			$frag.appendChild(cloneSpan);
+		})
+
+		var clickHandler = function (evt) {
+			var $target = evt.target;
+			var id = $target.dataset.id;
+			[...$fundLists.children]
+				.forEach(item => item.classList.remove('active'));
+			$target.classList.add('active');
+			showChart("c1", "all", id)();
+		}
+
+		$fundLists.appendChild($frag);
+		$fundLists.addEventListener('click', clickHandler, false);
+
+		
+		function showChart(charType, type, id) {
+			return (function (opt) {
+				return function (evt) {
+					echart.clear();
+					echart.setOption(opt);
+				}
+			})(optsGen(charType, type, id))
+		}
+
+	
+		var $btn1 = document.getElementById('showWorth');
+		$btn1.addEventListener('click', showChart("c1", "all"), false);
+
+		var $btn1rid = document.getElementById("showWorthRid");
+		$btn1rid.addEventListener('click', showChart('c1', "rid"), false);
+
+		
+		var $btn2 = document.getElementById('showCoNumber');
+		$btn2.addEventListener('click', showChart("c2", "all"), false);
+
+	</script>
+</body>
+</html>
